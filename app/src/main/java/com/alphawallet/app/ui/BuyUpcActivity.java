@@ -3,6 +3,7 @@ package com.alphawallet.app.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,19 +23,25 @@ import android.widget.TextView;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
+import com.alphawallet.app.contracts.UPCGoldBank;
+import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.QRResult;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenInfo;
+import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TokenRepositoryType;
 import com.alphawallet.app.ui.widget.OnQRCodeScannedListener;
 import com.alphawallet.app.ui.widget.entity.AmountEntryItem;
 import com.alphawallet.app.ui.widget.entity.ENSHandler;
 import com.alphawallet.app.ui.zxing.FullScannerFragment;
 import com.alphawallet.app.util.BalanceUtils;
-import com.alphawallet.app.util.KeyboardUtils;
 import com.alphawallet.app.util.Utils;
+import com.alphawallet.app.viewmodel.DappBrowserViewModel;
 import com.alphawallet.app.viewmodel.SendViewModel;
+import com.alphawallet.app.web3.OnSignTransactionListener;
+import com.alphawallet.app.web3.entity.Address;
+import com.alphawallet.app.web3.entity.Web3Transaction;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
@@ -42,6 +49,11 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.tx.ClientTransactionManager;
+import org.web3j.tx.gas.StaticGasProvider;
 import org.web3j.utils.Convert;
 
 import java.lang.ref.SoftReference;
@@ -57,15 +69,17 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.alphawallet.app.C.Key.WALLET;
+import static com.alphawallet.app.repository.EthereumNetworkBase.XDAI_ID;
 import static com.alphawallet.token.tools.Convert.getEthString;
 
-public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListener {
+public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListener, OnSignTransactionListener {
     private static final int BARCODE_READER_REQUEST_CODE = 1;
     @Inject
     SendViewModel viewModel;
+    private DappBrowserViewModel dappViewModel;
 
 
-
+    private final MutableLiveData<Wallet> defaultWallet = new MutableLiveData<>();
     private static final int RC_HANDLE_CAMERA_PERM = 2;
     public static final int RC_HANDLE_IMAGE_PICKUP = 3;
 
@@ -104,6 +118,8 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
     private TextView chainName;
     private int currentChain;
     private AmountEntryItem amountInput;
+    private volatile boolean canSign = true;
+    private NetworkInfo networkInfo;
 
     @Override
     public void onCreate(Bundle state)
@@ -237,28 +253,78 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         }
     }
 
+    @Override
+    public void onSignTransaction(Web3Transaction transaction, String url)
+    {
+        try
+        {
+            dappViewModel.updateGasPrice(networkInfo.chainId); //start updating gas price right before we open
+            //minimum for transaction to be valid: recipient and value or payload
+            if ((transaction.recipient.equals(Address.EMPTY) && transaction.payload != null) // Constructor
+                    || (!transaction.recipient.equals(Address.EMPTY) && (transaction.payload != null || transaction.value != null))) // Raw or Function TX
+            {
+                if (canSign)
+                {
+                    dappViewModel.openConfirmation(this, transaction, url, networkInfo);
+                    canSign = false;
+                    handler.postDelayed(() -> canSign = true, 3000); //debounce 3 seconds to avoid multiple signing issues
+                }
+            }
+            else
+            {
+                //display transaction error
+                //onInvalidTransaction(transaction);
+                //web3.onSignCancel(transaction);
+            }
+        }
+        catch (android.os.TransactionTooLargeException e)
+        {
+            //transactionTooLarge();
+            //web3.onSignCancel(transaction);
+        }
+        catch (Exception e)
+        {
+            //onInvalidTransaction(transaction);
+            //web3.onSignCancel(transaction);
+        }
+    }
+
+    /*
+    //return from the openConfirmation above
+    public void handleTransactionCallback(int resultCode, Intent data)
+    {
+        if (data == null || web3 == null) return;
+        Web3Transaction web3Tx = data.getParcelableExtra(C.EXTRA_WEB3TRANSACTION);
+        if (resultCode == RESULT_OK && web3Tx != null)
+        {
+            String hashData = data.getStringExtra(C.EXTRA_TRANSACTION_DATA);
+            web3.onSignTransactionSuccessful(web3Tx, hashData);
+        }
+        else if (web3Tx != null)
+        {
+            web3.onSignCancel(web3Tx);
+        }
+    }
+*/
+
 
     private void onNext() {
-        KeyboardUtils.hideKeyboard(getCurrentFocus());
-        boolean isValid = amountInput.checkValidAmount();
+        Web3j web3j = TokenRepository.getWeb3jService(XDAI_ID);
+        wallet = getIntent().getParcelableExtra(WALLET);
+        String address = wallet.address;
+        ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
+        String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
 
-        if (isBalanceZero(currentAmount)) {
-            amountInput.setError(R.string.error_zero_balance);
-            isValid = false;
-        }
-        if (!isBalanceEnough(currentAmount)) {
-            amountInput.setError(R.string.error_insufficient_funds);
-            isValid = false;
-        }
 
-        String to = ensHandler.getAddressFromEditView();
-        if (to == null) return;
+        //TODO: change gasPrice and gasLimit to be dynamic values
+        BigInteger gasPrice = BigInteger.valueOf(12122960);
+        BigInteger gasLimit = BigInteger.valueOf(12122960);
+        BigInteger totalBalance = BigInteger.valueOf(777);
+        StaticGasProvider gasProvider = new StaticGasProvider(gasPrice,gasLimit);
+        UPCGoldBank bank = UPCGoldBank.load(contractAddress, web3j, ctm, gasProvider );
 
-        if (isValid) {
-            BigInteger amountInSubunits = BalanceUtils.baseToSubunit(currentAmount, decimals);
-            boolean sendingTokens = !token.isEthereum();
-            viewModel.openConfirmation(this, to, amountInSubunits, token.getAddress(), token.tokenInfo.decimals, token.getSymbol(), sendingTokens, ensHandler.getEnsName(), currentChain);
-        }
+        RemoteFunctionCall<TransactionReceipt> receipt = bank.depositMoney(upcRaw.getText().toString());
+        receipt = receipt;
     }
 
     private void pickImage()

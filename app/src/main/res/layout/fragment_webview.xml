@@ -11,23 +11,28 @@
 
     <Button
         android:id="@+id/scan_upc_standard"
-        style="@android:style/Widget.Material.Light.Button.Toggle"
+        style="@style/AppIntroButtonStyleCompat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/address_bar"
         android:background="#C1AD0202"
+        android:padding="@dimen/dp10"
         android:text="@string/scan_standard"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
         tools:text="@string/scan_standard" />
+
     <Button
         android:id="@+id/scan_upc_crypto"
-        style="@android:style/Widget.Material.Light.Button.Toggle"
+        style="@style/Widget.AppCompat.Button.Small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/address_bar"
+        android:layout_marginLeft="7dp"
         android:layout_toRightOf="@id/scan_upc_standard"
         android:background="#C11A97EA"
+        android:padding="@dimen/dp10"
         android:text="@string/scan_crypto"
-        android:layout_marginLeft="5dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
         tools:text="@string/scan_crypto" />
 
     <ProgressBar

@@ -3,7 +3,11 @@ package com.alphawallet.app.ui;
 import android.Manifest;
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,14 +18,28 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
+import com.alphawallet.app.ui.BuyUpcActivity;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
+import com.alphawallet.app.contracts.UPCGoldBank;
+import com.alphawallet.app.entity.FragmentMessenger;
+import com.alphawallet.app.entity.QRResult;
+import com.alphawallet.app.entity.Wallet;
+import com.alphawallet.app.repository.EthereumNetworkBase;
+import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.ui.BaseActivity;
 import com.alphawallet.app.ui.WalletConnectActivity;
 import com.alphawallet.app.ui.SplashActivity;
 import com.alphawallet.app.ui.widget.OnQRCodeScannedListener;
 import com.alphawallet.app.ui.zxing.FullScannerFragment;
+import com.alphawallet.app.ui.zxing.QRScanningActivity;
+import com.alphawallet.app.util.QRParser;
+import com.alphawallet.app.viewmodel.ActivityViewModel;
+import com.alphawallet.app.viewmodel.ActivityViewModelFactory;
+import com.alphawallet.app.viewmodel.DappBrowserViewModel;
+import com.alphawallet.app.viewmodel.WalletViewModelFactory;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
@@ -29,18 +47,29 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
+import org.web3j.protocol.Web3j;
+import org.web3j.tuples.generated.Tuple4;
+import org.web3j.tx.ClientTransactionManager;
+import org.web3j.tx.gas.StaticGasProvider;
+
 import java.lang.ref.SoftReference;
+import java.math.BigInteger;
+import java.security.AccessControlContext;
 import java.util.Objects;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import java8.util.concurrent.CompletableFuture;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static com.alphawallet.app.C.Key.WALLET;
+import static com.alphawallet.app.repository.EthereumNetworkBase.XDAI_ID;
+import static java.security.AccessController.getContext;
 
 public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedListener {
-
+    private final MutableLiveData<Wallet> defaultWallet = new MutableLiveData<>();
     private static final int RC_HANDLE_CAMERA_PERM = 2;
     public static final int RC_HANDLE_IMAGE_PICKUP = 3;
 
@@ -53,6 +82,13 @@ public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedList
     private TextView browseButton;
     private Disposable disposable;
     private AWalletAlertDialog dialog;
+    private ActivityViewModel viewModel;
+    ActivityViewModelFactory activityViewModelFactory;
+
+    public LiveData<Wallet> defaultWallet() {
+        return defaultWallet;
+    }
+
 
     @Override
     public void onCreate(Bundle state)
@@ -185,28 +221,32 @@ public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedList
         }
     }
 
-    @Override
+    //@Override
     public void onReceive(String result)
     {
-        handleQRCode(result);
+        result = result;
+        return;
     }
 
-    public void handleQRCode(String qrCode)
+
+    public void handleQRCode(int resultCode, Intent data, FragmentMessenger messenger)
     {
-        if (qrCode.startsWith("wc:")) {
-            startWalletConnect(qrCode);
-        } else {
-
-            SplashActivity sa = new SplashActivity();
-            Intent intent = new Intent(sa, SplashActivity.class);
-            sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
+        String qrCode = null;
 
 
-            //Intent intent = new Intent();
-            //intent.putExtra(C.EXTRA_UNIVERSAL_SCAN, qrCode);
-            //setResult(Activity.RESULT_OK, intent);
-            //finish();
+        if (data != null)
+        {
+            qrCode = data.getStringExtra(FullScannerFragment.BarcodeObject);
+            if (qrCode == null ) return;
+            QRParser parser = QRParser.getInstance(EthereumNetworkBase.extraChains());
+
+            //if button pressed is crypto, then result.type = OTHER
+            QRResult result = parser.parse(qrCode);
+
+
+            this.buyUpc(getContext(), result, messenger);
         }
+
     }
 
     private void startWalletConnect(String qrCode) {
@@ -255,7 +295,7 @@ public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedList
         }
         else
         {
-            handleQRCode(result.getText());
+            //handleQRCode(result.getText());
         }
     }
 

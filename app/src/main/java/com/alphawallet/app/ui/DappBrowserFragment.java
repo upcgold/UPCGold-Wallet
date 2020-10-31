@@ -443,7 +443,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         });
 
         if (upc != null) upc.setOnMenuItemClickListener(menuItem -> {
-            viewModel.startUpcScan(getActivity());
+            viewModel.startCryptoScan(getActivity());
             return true;
         });
 
@@ -523,12 +523,12 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
 
         scanUpcCrypto = view.findViewById(R.id.scan_upc_crypto);
         scanUpcCrypto.setOnClickListener(v -> {
-            viewModel.startUpcScan(getActivity());
+            viewModel.startCryptoScan(getActivity());
         });
 
         scanUpcStandard = view.findViewById(R.id.scan_upc_standard);
         scanUpcStandard.setOnClickListener(v -> {
-            viewModel.startUpcScan(getActivity());
+            viewModel.startScan(getActivity());
         });
 
 
@@ -1438,6 +1438,37 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         }
     }
 
+    public void handleCryptoQRCode(int resultCode, Intent data, FragmentMessenger messenger)
+    {
+        //result
+        String qrCode = null;
+        try
+        {
+            if (data != null)
+            {
+                qrCode = data.getStringExtra(FullScannerFragment.BarcodeObject);
+                if (qrCode == null || checkForMagicLink(qrCode)) return;
+                QRParser parser = QRParser.getInstance(EthereumNetworkBase.extraChains());
+                //if button pressed is crypto, then result.type = OTHER
+                QRResult result = parser.parse(qrCode);
+                //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
+                viewModel.buyUpc(getContext(), result);
+            }
+        }
+        catch (Exception e)
+        {
+            qrCode = null;
+        }
+
+        if (qrCode == null && getActivity() != null)
+        {
+            Toast.makeText(getActivity(), R.string.toast_invalid_code, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+
     public void handleQRCode(int resultCode, Intent data, FragmentMessenger messenger)
     {
         //result
@@ -1452,6 +1483,8 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                         qrCode = data.getStringExtra(FullScannerFragment.BarcodeObject);
                         if (qrCode == null || checkForMagicLink(qrCode)) return;
                         QRParser parser = QRParser.getInstance(EthereumNetworkBase.extraChains());
+
+                        //if button pressed is crypto, then result.type = OTHER
                         QRResult result = parser.parse(qrCode);
                         switch (result.type)
                         {

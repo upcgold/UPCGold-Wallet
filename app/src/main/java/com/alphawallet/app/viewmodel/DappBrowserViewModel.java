@@ -87,7 +87,7 @@ public class DappBrowserViewModel extends BaseViewModel  {
     @Nullable
     private Disposable balanceTimerDisposable;
 
-    DappBrowserViewModel(
+    public DappBrowserViewModel(
             FindDefaultNetworkInteract findDefaultNetworkInteract,
             GenericWalletInteract genericWalletInteract,
             AssetDefinitionService assetDefinitionService,
@@ -215,7 +215,8 @@ public class DappBrowserViewModel extends BaseViewModel  {
     }
 
 
-    public void startUpcScan(Activity activity) {
+    //jonger start here to differentiate the standard from the crypto scan
+    public void startCryptoScan(Activity activity) {
         Intent intent = new Intent(activity, ScanUpcActivity.class);
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }

@@ -105,6 +105,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     private String buildVersion;
     private final Fragment settingsFragment;
     private final Fragment dappBrowserFragment;
+    private  ScanUpcActivity  scanActivity;
     private final Fragment walletFragment;
     private final Fragment activityFragment;
     private String walletTitle;
@@ -128,6 +129,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         settingsFragment = new NewSettingsFragment();
         walletFragment = new WalletFragment();
         activityFragment = new ActivityFragment();
+        scanActivity = new ScanUpcActivity();
         lifeCycle = new LifecycleObserver()
         {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -958,10 +960,18 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             requestCode = SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS;
         }
 
+        boolean jonger = true; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
+
         switch (requestCode)
         {
             case DAPP_BARCODE_READER_REQUEST_CODE:
-                ((DappBrowserFragment)dappBrowserFragment).handleQRCode(resultCode, data, this);
+                if(jonger) {
+                    ((DappBrowserFragment)dappBrowserFragment).handleCryptoQRCode(resultCode, data, this);
+                }
+                else {
+                    ((DappBrowserFragment)dappBrowserFragment).handleQRCode(resultCode, data, this);
+                }
+
                 break;
             case C.REQUEST_SELECT_NETWORK:
                 ((DappBrowserFragment)dappBrowserFragment).handleSelectNetwork(resultCode, data);

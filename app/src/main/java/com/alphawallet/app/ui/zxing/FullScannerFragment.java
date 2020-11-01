@@ -40,7 +40,7 @@ public class FullScannerFragment extends Fragment implements ZXingScannerView.Re
     private ArrayList<Integer> mSelectedIndices;
     private int mCameraId = -1;
     private int mScanCode = 0;
-
+    private String button;
     private OnQRCodeScannedListener listener;
 
     @Override
@@ -67,6 +67,7 @@ public class FullScannerFragment extends Fragment implements ZXingScannerView.Re
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
+        button = getActivity().getIntent().getStringExtra("button");
         setHasOptionsMenu(true);
     }
 
@@ -107,6 +108,7 @@ public class FullScannerFragment extends Fragment implements ZXingScannerView.Re
         {
             Intent intent = new Intent();
             intent.putExtra(BarcodeObject, rawResult.getText());
+            intent.putExtra("button", button );
             getActivity().setResult(SUCCESS, intent);
             getActivity().finish();
         }

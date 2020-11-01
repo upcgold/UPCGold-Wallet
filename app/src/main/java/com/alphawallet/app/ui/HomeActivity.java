@@ -129,7 +129,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         settingsFragment = new NewSettingsFragment();
         walletFragment = new WalletFragment();
         activityFragment = new ActivityFragment();
-        scanActivity = new ScanUpcActivity();
+        //scanActivity = new ScanUpcActivity();
         lifeCycle = new LifecycleObserver()
         {
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -953,14 +953,20 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+
+        String button = data.getStringExtra("button");
         Operation taskCode = null;
         if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
         {
             taskCode = Operation.values()[requestCode - SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS];
             requestCode = SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS;
         }
+        boolean jonger = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
 
-        boolean jonger = true; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
+        if(button.equals("crypto")) {
+            jonger = true;
+        }
+
 
         switch (requestCode)
         {

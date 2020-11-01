@@ -218,12 +218,14 @@ public class DappBrowserViewModel extends BaseViewModel  {
     //jonger start here to differentiate the standard from the crypto scan
     public void startCryptoScan(Activity activity) {
         Intent intent = new Intent(activity, ScanUpcActivity.class);
+        intent.putExtra("button", "crypto");
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 
 
     public void startScan(Activity activity) {
         Intent intent = new Intent(activity, QRScanningActivity.class);
+        intent.putExtra("button", "standard");
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 

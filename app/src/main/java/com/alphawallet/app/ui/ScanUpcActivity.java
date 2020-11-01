@@ -76,7 +76,7 @@ public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedList
     public static final int DENY_PERMISSION = 1;
 
     private FullScannerFragment fullScannerFragment;
-
+    private String button;
     private TextView flashButton;
     private TextView myAddressButton;
     private TextView browseButton;
@@ -118,6 +118,9 @@ public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedList
         browseButton = findViewById(R.id.browse_button);
 
         fullScannerFragment = (FullScannerFragment) getSupportFragmentManager().findFragmentById(R.id.scanner_fragment);
+
+        button = getIntent().getStringExtra("button");
+
 
         if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(C.EXTRA_UNIVERSAL_SCAN))
         {
@@ -244,7 +247,7 @@ public class ScanUpcActivity extends BaseActivity implements OnQRCodeScannedList
             QRResult result = parser.parse(qrCode);
 
 
-            this.buyUpc(getContext(), result, messenger);
+            //this.buyUpc(getContext(), result, messenger);
         }
 
     }

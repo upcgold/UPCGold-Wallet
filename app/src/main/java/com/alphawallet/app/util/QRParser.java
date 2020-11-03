@@ -130,7 +130,12 @@ public class QRParser {
                 }
                 catch (Exception e)
                 {
-                    result = new QRResult(url, EIP681Type.OTHER);
+                    if(url.matches("[-+]?\\d*\\.?\\d+")) {
+                        result = new QRResult(url, EIP681Type.PRODUCT_LOOKUP);
+                    }
+                    else {
+                        result = new QRResult(url, EIP681Type.OTHER);
+                    }
                 }
             }
         }

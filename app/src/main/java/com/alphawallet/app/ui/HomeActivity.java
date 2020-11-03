@@ -961,17 +961,17 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             taskCode = Operation.values()[requestCode - SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS];
             requestCode = SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS;
         }
-        boolean jonger = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
+        boolean cryptoScan = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
 
         if(button.equals("crypto")) {
-            jonger = true;
+            cryptoScan = true;
         }
 
 
         switch (requestCode)
         {
             case DAPP_BARCODE_READER_REQUEST_CODE:
-                if(jonger) {
+                if(cryptoScan) {
                     ((DappBrowserFragment)dappBrowserFragment).handleCryptoQRCode(resultCode, data, this);
                 }
                 else {

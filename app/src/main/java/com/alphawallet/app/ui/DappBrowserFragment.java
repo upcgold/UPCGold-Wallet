@@ -1507,6 +1507,15 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                             case URL:
                                 loadUrlRemote(qrCode);
                                 break;
+                            case PRODUCT_LOOKUP:
+                                //qrCode = null;
+                                //copyToClipboard(result.getAddress());
+                                //SplashActivity sa = new SplashActivity();
+                                //Intent intent = new Intent(sa, SplashActivity.class);
+                                //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
+                                String upcUrl = "https://www.upcitemdb.com/upc/" + qrCode;
+                                loadUrlRemote(upcUrl);
+                                break;
                             case OTHER:
                                 //qrCode = null;
                                 //copyToClipboard(result.getAddress());

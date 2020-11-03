@@ -12,5 +12,6 @@ public enum EIP681Type
     FUNCTION_CALL,
     URL,
     MAGIC_LINK,
-    OTHER
+    OTHER,
+    PRODUCT_LOOKUP
 }

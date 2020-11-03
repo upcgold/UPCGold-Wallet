@@ -953,8 +953,14 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        String button = "";
+        try {
+             button = data.getStringExtra("button");
+        }
+        catch (Exception e) {
 
-        String button = data.getStringExtra("button");
+        }
+
         Operation taskCode = null;
         if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
         {
@@ -963,7 +969,8 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         }
         boolean cryptoScan = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
 
-        if(button.equals("crypto")) {
+
+        if(button != null && button.equals("crypto")) {
             cryptoScan = true;
         }
 

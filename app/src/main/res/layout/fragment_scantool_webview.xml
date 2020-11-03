@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_bottom_border">
+
+    <include
+        layout="@layout/layout_url_bar_full"
+        android:visibility="invisible"
+        tools:visibility="gone" />
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_below="@id/scan_upc_crypto"
+        android:indeterminate="false"
+        android:progressDrawable="@drawable/background_horizontal_progress" />
+
+    <View
+        android:id="@+id/anchor"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_below="@id/progressBar"
+        />
+
+    <RelativeLayout
+        android:id="@+id/secondary_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="134dp"
+        android:layout_below="@id/anchor"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="-8dp"
+        android:background="@color/alto">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true">
+
+
+            <TextView
+                android:id="@+id/balance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="@font/font_regular"
+                android:gravity="center_vertical"
+                android:text="0.0"
+                android:textColor="@color/text_dark_gray"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/symbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/font_semibold"
+                android:gravity="center_vertical"
+                android:text="@string/eth"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/scan_upc_crypto"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="204dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="85dp"
+            android:layout_marginEnd="0dp"
+            android:background="#C11A97EA"
+            android:padding="@dimen/dp10"
+            android:text="@string/scan_crypto"
+            tools:text="@string/scan_crypto" />
+
+        <Button
+            android:id="@+id/scan_upc_standard"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="3dp"
+            android:layout_marginBottom="49dp"
+            android:background="#C1AD0202"
+            android:text="@string/scan_standard"
+            tools:ignore="UnknownId"
+            tools:text="@string/scan_standard" />
+
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/secondary_toolbar"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <com.alphawallet.app.ui.widget.entity.DappBrowserSwipeLayout
+            android:id="@+id/swipe_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="522dp">
+
+            <com.alphawallet.app.web3.Web3View
+                android:id="@+id/web3view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </com.alphawallet.app.ui.widget.entity.DappBrowserSwipeLayout>
+
+    </FrameLayout>
+
+</RelativeLayout>

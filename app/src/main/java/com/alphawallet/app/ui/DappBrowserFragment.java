@@ -254,7 +254,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         AndroidSupportInjection.inject(this);
         LocaleUtils.setActiveLocale(getContext());
-        int webViewID = CustomViewSettings.minimiseBrowserURLBar() ? R.layout.fragment_webview_compact : R.layout.fragment_webview;
+        int webViewID = CustomViewSettings.minimiseBrowserURLBar() ? R.layout.fragment_webview_compact : R.layout.fragment_scantool_webview;
         View view = inflater.inflate(webViewID, container, false);
         initViewModel();
         initView(view);

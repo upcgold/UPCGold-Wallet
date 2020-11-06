@@ -307,20 +307,24 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
 */
         String contractAddressStr = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
 
-        String payload = "0x31fb67c2000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000103030303030313130303138313832343900000000000000000000000000000000";
+        //String payload = "0x31fb67c2000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000103030303030313130303138313832343900000000000000000000000000000000";
+        String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
 
-
+        String gasString = "1";
         Address contratAddress = new Address(contractAddressStr);
-        BigInteger gasPrice = BigInteger.valueOf(12122960);
-        BigInteger gasLimit = BigInteger.valueOf(12122960);
+        BigInteger gasPrice = Convert.toWei(gasString,Convert.Unit.GWEI).toBigInteger();
+        BigInteger gasLimit = BigInteger.valueOf(12487794);
+        String amountStakedString = ".1";
+        BigDecimal convertecd = Convert.toWei(amountStakedString,Convert.Unit.ETHER);
+
 
         Web3Transaction trans = new Web3Transaction(
                 new Address(contractAddressStr),
                 contratAddress,
-                BigInteger.valueOf(0),
+                convertecd.toBigInteger(),
                 gasPrice,
                 gasLimit,
-                4444,
+                4450,
                 payload
         );
 

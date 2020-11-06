@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.TransactionTooLargeException;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.contracts.UPCGoldBank;
+import com.alphawallet.app.entity.ConfirmationType;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.QRResult;
 import com.alphawallet.app.entity.Wallet;
@@ -31,6 +33,7 @@ import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenInfo;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TokenRepositoryType;
+import com.alphawallet.app.router.ConfirmationRouter;
 import com.alphawallet.app.ui.widget.OnQRCodeScannedListener;
 import com.alphawallet.app.ui.widget.entity.AmountEntryItem;
 import com.alphawallet.app.ui.widget.entity.ENSHandler;
@@ -49,10 +52,15 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 
+import org.web3j.abi.FunctionEncoder;
+import org.web3j.abi.datatypes.Function;
+import org.web3j.abi.datatypes.Uint;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.RemoteFunctionCall;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.ClientTransactionManager;
+import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.tx.gas.StaticGasProvider;
 import org.web3j.utils.Convert;
 
@@ -60,6 +68,8 @@ import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javax.inject.Inject;
 
@@ -120,6 +130,8 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
     private AmountEntryItem amountInput;
     private volatile boolean canSign = true;
     private NetworkInfo networkInfo;
+    private ConfirmationType confirmationType;
+    private  ConfirmationRouter confirmationRouter;
 
     @Override
     public void onCreate(Bundle state)
@@ -127,6 +139,8 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         super.onCreate(state);
         setContentView(R.layout.activity_buy_upc);
         initView();
+        confirmationRouter = new ConfirmationRouter();
+
 /*
         //see how the send page accepts these parameters from wherever it is called
         handler = new Handler();
@@ -192,67 +206,6 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
     }
 
 
-    private boolean isBalanceZero(String balance)
-    {
-        try
-        {
-            /*
-            While checking 0.00 value which is passed while using Fiat currency,
-            BigDecimal.ZERO fails to send accurate value.
-            Using .doubleValue(), converts to actual amount and compare without scale.
-             */
-            BigDecimal amount = new BigDecimal(balance);
-            return BigDecimal.ZERO.doubleValue() == amount.doubleValue();
-        }
-        catch (Exception e)
-        {
-            return true;
-        }
-    }
-
-    private boolean isBalanceEnough(String eth)
-    {
-        try
-        {
-            //Needs to take into account decimal of token
-            int decimals = (token != null && token.tokenInfo != null) ? token.tokenInfo.decimals : 18;
-            BigDecimal amount = new BigDecimal(BalanceUtils.baseToSubunit(eth, decimals));
-            return (token.balance.subtract(amount).compareTo(BigDecimal.ZERO) >= 0);
-        }
-        catch (Exception e)
-        {
-            return false;
-        }
-    }
-
-    private void setupTokenContent() {
-        tokenBalanceText = findViewById(R.id.balance_eth);
-        tokenSymbolText = findViewById(R.id.symbol);
-        chainName = findViewById(R.id.text_chain_name);
-
-        String symbol = token.getSymbol();
-
-        tokenSymbolText.setText(TextUtils.isEmpty(token.tokenInfo.name)
-                ? symbol
-                : symbol.length() > 0 ? getString(R.string.token_name, token.tokenInfo.name, symbol)
-                : token.tokenInfo.name);
-
-        TokenInfo tokenInfo = token.tokenInfo;
-        BigDecimal decimalDivisor = new BigDecimal(Math.pow(10, tokenInfo.decimals));
-        BigDecimal ethBalance = tokenInfo.decimals > 0
-                ? token.balance.divide(decimalDivisor, Token.TOKEN_BALANCE_PRECISION, RoundingMode.DOWN).stripTrailingZeros() : token.balance;
-        String value = getEthString(ethBalance.doubleValue());
-        tokenBalanceText.setText(value);
-
-        tokenBalanceText.setVisibility(View.VISIBLE);
-        if (token != null)
-        {
-            Utils.setChainColour(chainName, token.tokenInfo.chainId);
-            chainName.setText(viewModel.getChainName(token.tokenInfo.chainId));
-            viewModel.setChainId(token.tokenInfo.chainId);
-        }
-    }
-
     @Override
     public void onSignTransaction(Web3Transaction transaction, String url)
     {
@@ -309,6 +262,9 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
 
 
     private void onNext() {
+
+
+        /*
         Web3j web3j = TokenRepository.getWeb3jService(XDAI_ID);
         wallet = getIntent().getParcelableExtra(WALLET);
         String address = wallet.address;
@@ -322,9 +278,60 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         BigInteger totalBalance = BigInteger.valueOf(777);
         StaticGasProvider gasProvider = new StaticGasProvider(gasPrice,gasLimit);
         UPCGoldBank bank = UPCGoldBank.load(contractAddress, web3j, ctm, gasProvider );
+        String amountStakedString = "3";
+        BigDecimal convertecd = Convert.fromWei(amountStakedString,Convert.Unit.ETHER);
 
-        RemoteFunctionCall<TransactionReceipt> receipt = bank.depositMoney(upcRaw.getText().toString());
-        receipt = receipt;
+         */
+        //transaction = getIntent().getParcelableExtra(C.EXTRA_WEB3TRANSACTION);
+        //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+
+
+        //confirmationRouter.open(this, null, amount, contractAddress, token.tokenInfo.decimals, token.getSymbol(), sendingTokens, ensHandler.getEnsName(), currentChain);
+
+
+
+///////////////////
+////////////////////////////
+        /*
+        public void openConfirmation(Activity context, Web3Transaction transaction, String requesterURL, NetworkInfo networkInfo) throws TransactionTooLargeException
+        {
+            confirmationRouter.open(context, transaction, networkInfo.name, requesterURL, networkInfo.chainId);
+        }
+
+////////////////////////////////
+//////////////////
+
+            String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+        confirmationType = ConfirmationType.values()[getIntent().getIntExtra(C.TOKEN_TYPE, 0)];
+
+*/
+        String contractAddressStr = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+
+        String payload = "0x31fb67c2000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000103030303030313130303138313832343900000000000000000000000000000000";
+
+
+        Address contratAddress = new Address(contractAddressStr);
+        BigInteger gasPrice = BigInteger.valueOf(12122960);
+        BigInteger gasLimit = BigInteger.valueOf(12122960);
+
+        Web3Transaction trans = new Web3Transaction(
+                new Address(contractAddressStr),
+                contratAddress,
+                BigInteger.valueOf(0),
+                gasPrice,
+                gasLimit,
+                4444,
+                payload
+        );
+
+        String url = "https://bank.upcgold.io/";
+        try {
+            confirmationRouter.open(this, trans, "xDai", url, 100);
+        }
+        catch (TransactionTooLargeException e) {
+
+        }
+
     }
 
     private void pickImage()
@@ -335,14 +342,6 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), RC_HANDLE_IMAGE_PICKUP);
     }
 
-    // Handles the requesting of the camera permission.
-    private void requestCameraPermission()
-    {
-        Log.w("QR SCanner", "Camera permission is not granted. Requesting permission");
-
-        final String[] permissions = new String[]{Manifest.permission.CAMERA};
-        ActivityCompat.requestPermissions(this, permissions, RC_HANDLE_CAMERA_PERM); //always ask for permission to scan
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)

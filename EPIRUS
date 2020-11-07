@@ -1,0 +1,9 @@
+docker run -v /home/...../src/contracts:/sources ethereum/solc:0.6.2 -o /sources --abi --bin /sources/UPCGoldBank.sol
+
+the sources directory needs to be specified as the output or no abis or bins are being created on local.
+
+
+
+build wrappers like:
+
+epirus generate solidity generate --abiFile=/home/tenten/Projects/upc-wallet/contracts/upcgold/wrappers/UPCGoldBank.abi --outputDir=/home/tenten/output --package=upcgold

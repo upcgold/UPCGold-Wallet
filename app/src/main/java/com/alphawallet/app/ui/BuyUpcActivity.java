@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -126,6 +127,10 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
     private ENSHandler ensHandler;
     private Handler handler;
     private TextView chainName;
+    private EditText toStake;
+
+
+
     private int currentChain;
     private AmountEntryItem amountInput;
     private volatile boolean canSign = true;
@@ -140,30 +145,6 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         setContentView(R.layout.activity_buy_upc);
         initView();
         confirmationRouter = new ConfirmationRouter();
-
-/*
-        //see how the send page accepts these parameters from wherever it is called
-        handler = new Handler();
-
-        contractAddress = getIntent().getStringExtra(C.EXTRA_CONTRACT_ADDRESS);
-
-        decimals = getIntent().getIntExtra(C.EXTRA_DECIMALS, C.ETHER_DECIMALS);
-        symbol = getIntent().getStringExtra(C.EXTRA_SYMBOL);
-        symbol = symbol == null ? C.ETH_SYMBOL : symbol;
-        wallet = getIntent().getParcelableExtra(WALLET);
-        token = getIntent().getParcelableExtra(C.EXTRA_TOKEN_ID);
-        QRResult result = getIntent().getParcelableExtra(C.EXTRA_AMOUNT);
-        currentChain = getIntent().getIntExtra(C.EXTRA_NETWORKID, 1);
-        myAddress = wallet.address;
-
-        setupTokenContent();
-
-        if (token != null)
-        {
-            amountInput = new AmountEntryItem(this, tokenRepository, token); //ticker is used automatically now
-        }
-*/
-
     }
 
     private void initView() {
@@ -175,6 +156,7 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         upcRaw = findViewById(R.id.upc_raw);
         currentStaker = findViewById(R.id.current_staker);
         amountStaked = findViewById(R.id.amount_staked);
+        toStake = findViewById(R.id.to_stake);
 
 
         if (getIntent() != null) {
@@ -242,69 +224,8 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         }
     }
 
-    /*
-    //return from the openConfirmation above
-    public void handleTransactionCallback(int resultCode, Intent data)
-    {
-        if (data == null || web3 == null) return;
-        Web3Transaction web3Tx = data.getParcelableExtra(C.EXTRA_WEB3TRANSACTION);
-        if (resultCode == RESULT_OK && web3Tx != null)
-        {
-            String hashData = data.getStringExtra(C.EXTRA_TRANSACTION_DATA);
-            web3.onSignTransactionSuccessful(web3Tx, hashData);
-        }
-        else if (web3Tx != null)
-        {
-            web3.onSignCancel(web3Tx);
-        }
-    }
-*/
-
-
     private void onNext() {
 
-
-        /*
-        Web3j web3j = TokenRepository.getWeb3jService(XDAI_ID);
-        wallet = getIntent().getParcelableExtra(WALLET);
-        String address = wallet.address;
-        ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
-        String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-
-
-        //TODO: change gasPrice and gasLimit to be dynamic values
-        BigInteger gasPrice = BigInteger.valueOf(12122960);
-        BigInteger gasLimit = BigInteger.valueOf(12122960);
-        BigInteger totalBalance = BigInteger.valueOf(777);
-        StaticGasProvider gasProvider = new StaticGasProvider(gasPrice,gasLimit);
-        UPCGoldBank bank = UPCGoldBank.load(contractAddress, web3j, ctm, gasProvider );
-        String amountStakedString = "3";
-        BigDecimal convertecd = Convert.fromWei(amountStakedString,Convert.Unit.ETHER);
-
-         */
-        //transaction = getIntent().getParcelableExtra(C.EXTRA_WEB3TRANSACTION);
-        //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-
-
-        //confirmationRouter.open(this, null, amount, contractAddress, token.tokenInfo.decimals, token.getSymbol(), sendingTokens, ensHandler.getEnsName(), currentChain);
-
-
-
-///////////////////
-////////////////////////////
-        /*
-        public void openConfirmation(Activity context, Web3Transaction transaction, String requesterURL, NetworkInfo networkInfo) throws TransactionTooLargeException
-        {
-            confirmationRouter.open(context, transaction, networkInfo.name, requesterURL, networkInfo.chainId);
-        }
-
-////////////////////////////////
-//////////////////
-
-            String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-        confirmationType = ConfirmationType.values()[getIntent().getIntExtra(C.TOKEN_TYPE, 0)];
-
-*/
         String contractAddressStr = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
 
         //String payload = "0x31fb67c2000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000103030303030313130303138313832343900000000000000000000000000000000";
@@ -314,9 +235,10 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         Address contratAddress = new Address(contractAddressStr);
         BigInteger gasPrice = Convert.toWei(gasString,Convert.Unit.GWEI).toBigInteger();
         BigInteger gasLimit = BigInteger.valueOf(12487794);
-        String amountStakedString = ".1";
+        String amountStakedString = toStake.getText().toString();
         BigDecimal convertecd = Convert.toWei(amountStakedString,Convert.Unit.ETHER);
 
+        Long nonce = Long.valueOf(-1);
 
         Web3Transaction trans = new Web3Transaction(
                 new Address(contractAddressStr),
@@ -324,7 +246,7 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
                 convertecd.toBigInteger(),
                 gasPrice,
                 gasLimit,
-                4450,
+                nonce,
                 payload
         );
 
@@ -399,15 +321,6 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
             startWalletConnect(qrCode);
         } else {
 
-            //SplashActivity sa = new SplashActivity();
-            //Intent intent = new Intent(sa, SplashActivity.class);
-            //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
-
-
-            //Intent intent = new Intent();
-            //intent.putExtra(C.EXTRA_UNIVERSAL_SCAN, qrCode);
-            //setResult(Activity.RESULT_OK, intent);
-            //finish();
         }
     }
 

@@ -197,6 +197,7 @@
                         android:paddingLeft="5dp"
                         android:textColor="@color/text_dark_gray"
                         android:textSize="20sp" />
+
                 </LinearLayout>
 
             </LinearLayout>
@@ -213,6 +214,13 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:text="" />
+
+                <EditText
+                    android:id="@+id/to_stake"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="numberDecimal" />
 
                 <LinearLayout
                     android:id="@+id/layout_iframe"
@@ -240,10 +248,7 @@
                     android:layout_marginTop="50dp"
                     android:orientation="vertical"
                     android:paddingLeft="25dp"
-                    android:paddingRight="20dp">
-
-                    <include layout="@layout/item_input_amount" />
-                </LinearLayout>
+                    android:paddingRight="20dp"/>
             </LinearLayout>
         </ScrollView>
 

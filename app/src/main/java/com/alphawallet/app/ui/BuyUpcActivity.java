@@ -224,12 +224,52 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         }
     }
 
+    private String buildPayload(String word) {
+        String finalPayload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002";
+
+        String wordLength = Integer.toHexString(word.length());
+        String lengthZeros = "";
+        int numZeros = 65 - wordLength.length();
+
+        for(int i = 0; i < numZeros; i++) {
+            lengthZeros += "0";
+        }
+
+        String formattedWordLength = lengthZeros + wordLength;
+        finalPayload += formattedWordLength;
+
+
+
+        char[] wordToChar = word.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        for (char c : wordToChar) {
+            // Step-2 Use %H to format character to Hex
+            String hexCode=String.format("%H", c);
+            builder.append(hexCode);
+        }
+
+        int bLength = 64 - builder.length();
+        while(bLength > 0) {
+            builder.append('0');
+            bLength--;
+        }
+
+        finalPayload += builder;
+
+
+        return finalPayload;
+    }
+
     private void onNext() {
 
         String contractAddressStr = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
 
-        //String payload = "0x31fb67c2000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000103030303030313130303138313832343900000000000000000000000000000000";
-        String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
+
+      //String payload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000117468697369736174657374737472696e67000000000000000000000000000000";
+        //String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
+
+        String payload = this.buildPayload(upcRaw.getText().toString());
+
 
         String gasString = "1";
         Address contratAddress = new Address(contractAddressStr);

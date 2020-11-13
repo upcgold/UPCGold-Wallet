@@ -230,9 +230,9 @@
     <string name="dialog_marketplace_success">Your tickets have been put up for sale in the Marketplace</string>
     <string name="dialog_process_error">Trade not processed</string>
     <string name="dialog_ok">OK</string>
-    <string name="wallet_label">Crypto</string>
+    <string name="wallet_label">Wallet</string>
     <string name="tx_label">Transactions</string>
-    <string name="browser_label">Scanner</string>
+    <string name="browser_label">Bank</string>
     <string name="settings_label">Settings</string>
     <string name="activity_label">Activity</string>
     <string name="toolbar_header_importing_tickets">Importing Tokens</string>
@@ -443,6 +443,7 @@
     <string name="network">Networks</string>
     <string name="select_active_networks">Select Active Networks</string>
     <string name="collectibles">Collectibles</string>
+    <string name="my_accounts">My Accounts</string>
     <string name="token_function">Token Function</string>
     <string name="channel_description">Alphawallet notification channel</string>
     <string name="error_camera_permission_denied">Permission to use the camera was denied.</string>

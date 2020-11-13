@@ -51,6 +51,8 @@ public class WalletRepository implements WalletRepositoryType
 	@Override
 	public Single<Wallet> findWallet(String address)
 	{
+
+		//jonger return blank wallet here
 		return fetchWallets().flatMap(accounts -> {
 			for (Wallet wallet : accounts)
 			{

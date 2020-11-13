@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorTheme"
+    android:background="@color/copper"
+    android:backgroundTint="#D67070"
     android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
@@ -19,7 +20,9 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:titleEnabled="false">
 
-            <include layout="@layout/layout_simple_toolbar_no_divider" />
+            <include
+                layout="@layout/layout_simple_toolbar_no_divider"
+                android:background="#A44848" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
@@ -38,7 +41,7 @@
             app:tabMode="scrollable"
             app:tabSelectedTextColor="@color/colorHighlight"
             app:tabTextAppearance="@style/WalletTabTextAppearance"
-            app:tabTextColor="@color/dove" />
+            app:tabTextColor="@color/golden_yellow" />
 
         <View
             android:layout_width="match_parent"

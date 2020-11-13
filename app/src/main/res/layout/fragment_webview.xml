@@ -9,38 +9,14 @@
     <include layout="@layout/layout_url_bar_full" />
 
 
-    <Button
-        android:id="@+id/scan_upc_standard"
-        style="@style/AppIntroButtonStyleCompat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/address_bar"
-        android:background="#C1AD0202"
-        android:padding="@dimen/dp10"
-        android:text="@string/scan_standard"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        tools:text="@string/scan_standard" />
 
-    <Button
-        android:id="@+id/scan_upc_crypto"
-        style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/address_bar"
-        android:layout_marginLeft="7dp"
-        android:layout_toRightOf="@id/scan_upc_standard"
-        android:background="#C11A97EA"
-        android:padding="@dimen/dp10"
-        android:text="@string/scan_crypto"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        tools:text="@string/scan_crypto" />
 
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:layout_below="@id/scan_upc_crypto"
+        android:layout_below="@id/address_bar"
         android:indeterminate="false"
         android:progressDrawable="@drawable/background_horizontal_progress" />
 

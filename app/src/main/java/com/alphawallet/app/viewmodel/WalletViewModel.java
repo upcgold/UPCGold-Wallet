@@ -89,6 +89,11 @@ public class WalletViewModel extends BaseViewModel
                 .subscribe(this::onDefaultWallet, this::onError);
     }
 
+    public void getUpcAccounts()
+    {
+        //this.prepare();
+    }
+
     private void onDefaultWallet(Wallet wallet)
     {
         tokensService.setCurrentAddress(wallet.address);

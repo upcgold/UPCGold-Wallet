@@ -300,7 +300,10 @@ public class DappBrowserViewModel extends BaseViewModel  {
 
         Web3j web3j = TokenRepository.getWeb3jService(XDAI_ID);
         ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
-        String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+
+        //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+        String contractAddress = "0x6F2BdBB25C38AdaBcDaB2f9F093ED5356B302A04";
+
 
 
         //TODO: change gasPrice and gasLimit to be dynamic values

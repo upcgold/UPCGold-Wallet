@@ -254,7 +254,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         AndroidSupportInjection.inject(this);
         LocaleUtils.setActiveLocale(getContext());
-        int webViewID = CustomViewSettings.minimiseBrowserURLBar() ? R.layout.fragment_webview_compact : R.layout.fragment_scantool_webview;
+        int webViewID = CustomViewSettings.minimiseBrowserURLBar() ? R.layout.fragment_webview_compact : R.layout.fragment_webview;
         View view = inflater.inflate(webViewID, container, false);
         initViewModel();
         initView(view);
@@ -519,16 +519,6 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         clear = view.findViewById(R.id.clear_url);
         clear.setOnClickListener(v -> {
             clearAddressBar();
-        });
-
-        scanUpcCrypto = view.findViewById(R.id.scan_upc_crypto);
-        scanUpcCrypto.setOnClickListener(v -> {
-            viewModel.startCryptoScan(getActivity());
-        });
-
-        scanUpcStandard = view.findViewById(R.id.scan_upc_standard);
-        scanUpcStandard.setOnClickListener(v -> {
-            viewModel.startScan(getActivity());
         });
 
 

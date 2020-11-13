@@ -40,6 +40,8 @@ public class TokensAdapter extends RecyclerView.Adapter<BinderViewHolder> {
     public static final int FILTER_CURRENCY = 1;
     public static final int FILTER_ASSETS = 2;
     public static final int FILTER_COLLECTIBLES = 3;
+    public static final int FILTER_UPC_ACCOUNTS = 4;
+
     private static final BigDecimal CUTOFF_VALUE = BigDecimal.valueOf(99999999999L);
     private final Realm realm;
 

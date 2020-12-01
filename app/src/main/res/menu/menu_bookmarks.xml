@@ -51,8 +51,13 @@
             android:orderInCategory="30"
             android:title="@string/title_clear_browser_cache"
             app:showAsAction="withText" />
+
         <item
             android:id="@+id/action_scan_upc"
             android:title="@string/scan_upc" />
+
+        <item
+            android:id="@+id/action_scan_coinbox"
+            android:title="@string/action_scan_coinbox" />
     </group>
 </menu>

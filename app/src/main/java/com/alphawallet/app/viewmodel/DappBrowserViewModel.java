@@ -18,12 +18,15 @@ import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.ui.MyAddressActivity;
 import com.alphawallet.app.ui.BuyUpcActivity;
+import com.alphawallet.app.ui.ScanCoinboxActivity;
 import com.alphawallet.app.ui.SendActivity;
 import com.alphawallet.app.ui.WalletConnectActivity;
 import com.alphawallet.token.entity.Signable;
 import com.alphawallet.app.C;
 
 import com.alphawallet.app.contracts.UPCGoldBank;
+
+
 import com.alphawallet.app.entity.DApp;
 import com.alphawallet.app.entity.DAppFunction;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -218,14 +221,21 @@ public class DappBrowserViewModel extends BaseViewModel  {
     //jonger start here to differentiate the standard from the crypto scan
     public void startCryptoScan(Activity activity) {
         Intent intent = new Intent(activity, ScanUpcActivity.class);
-        intent.putExtra("button", "crypto");
+        intent.putExtra("scanner_button_pressed", "crypto_scan_button");
+        activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
+    }
+
+    //jonger start here to differentiate the standard from the crypto scan
+    public void startCoinboxScan(Activity activity) {
+        Intent intent = new Intent(activity, ScanCoinboxActivity.class);
+        intent.putExtra("scanner_button_pressed", "coinbox_scan_button");
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 
 
     public void startScan(Activity activity) {
         Intent intent = new Intent(activity, QRScanningActivity.class);
-        intent.putExtra("button", "standard");
+        intent.putExtra("scanner_button_pressed", "standard_scan_button");
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 
@@ -302,7 +312,7 @@ public class DappBrowserViewModel extends BaseViewModel  {
         ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
 
         //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-        String contractAddress = "0x6F2BdBB25C38AdaBcDaB2f9F093ED5356B302A04";
+        String contractAddress = "0x312c8e98C41EA9Fd56CaE66e05D700984D4a70Dc";
 
 
 

@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -19,6 +18,8 @@ import android.widget.Toast;
 import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
+import com.alphawallet.app.contracts.Permissions;
+import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.FragmentMessenger;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -38,7 +39,6 @@ import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.router.AddTokenRouter;
 import com.alphawallet.app.router.ImportTokenRouter;
 import com.alphawallet.app.router.MyAddressRouter;
-import com.alphawallet.app.service.AnalyticsService;
 import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.TickerService;
@@ -46,18 +46,22 @@ import com.alphawallet.app.service.TransactionsService;
 import com.alphawallet.app.ui.HomeActivity;
 import com.alphawallet.app.ui.SendActivity;
 import com.alphawallet.app.util.AWEnsResolver;
-import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.util.QRParser;
 import com.alphawallet.token.entity.MagicLinkData;
 import com.alphawallet.token.tools.ParseMagicLink;
 
+import org.web3j.protocol.Web3j;
+import org.web3j.tx.ClientTransactionManager;
+import org.web3j.tx.gas.StaticGasProvider;
+
 import java.io.File;
-import java.util.Locale;
+import java.math.BigInteger;
 import java.util.UUID;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.alphawallet.app.repository.EthereumNetworkBase.XDAI_ID;
 import static org.web3j.crypto.WalletUtils.isValidAddress;
 
 public class HomeViewModel extends BaseViewModel {
@@ -260,6 +264,30 @@ public class HomeViewModel extends BaseViewModel {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onWallet, this::onError);
+
+
+        String address = preferenceRepository.getCurrentWalletAddress();
+        Web3j web3j = TokenRepository.getWeb3jService(XDAI_ID);
+        ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
+        //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+        String contractAddress = "0xD3aa23e8C88987Aa11286cfe242B69a108EfB040";
+        //TODO: change gasPrice and gasLimit to be dynamic values
+        BigInteger gasPrice = BigInteger.valueOf(12122960);
+        BigInteger gasLimit = BigInteger.valueOf(12122960);
+        BigInteger totalBalance = BigInteger.valueOf(777);
+        StaticGasProvider gasProvider = new StaticGasProvider(gasPrice,gasLimit);
+        Permissions permissions = Permissions.load(contractAddress, web3j, ctm, gasProvider );
+        UPCSingleton singleton = UPCSingleton.getInstance();
+        singleton.myAddress = address;
+        singleton.isCoinboxClient = singleton.coinboxCheck(permissions);
+        if(singleton.isCoinboxClient) {
+            //coinboxMode = findViewById(R.id.notification);
+            //Drawable d = getResources().getDrawable(R.drawable.background_binance_main);
+            //coinboxMode.setBackground(d);
+        }
+
+
+
     }
 
     private void onWallet(Wallet wallet) {

@@ -309,6 +309,10 @@
             android:label="Scan Upc" />
 
         <activity
+            android:name=".ui.ScanCoinboxActivity"
+            android:label="Scan Coinbox" />
+
+        <activity
             android:name=".ui.BuyUpcActivity"
             android:label="Buy Upc" />
 

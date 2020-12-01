@@ -234,6 +234,8 @@ public class WalletFragment extends BaseFragment implements
 
     private void refreshList()
     {
+        Wallet localWallet = viewModel.getWallet();
+        String currentAddress = localWallet.address;
         handler.post(() -> {
             adapter.clear();
             viewModel.prepare();

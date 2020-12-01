@@ -12,6 +12,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,6 +51,7 @@ import android.widget.Toast;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
+import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.entity.DApp;
@@ -64,6 +66,7 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletPage;
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
+import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.ui.widget.OnDappClickListener;
@@ -92,6 +95,7 @@ import com.alphawallet.app.web3.Web3View;
 import com.alphawallet.app.web3.entity.Address;
 import com.alphawallet.app.web3.entity.Web3Transaction;
 import com.alphawallet.app.widget.AWalletAlertDialog;
+import com.alphawallet.app.widget.NotificationView;
 import com.alphawallet.app.widget.SignMessageDialog;
 import com.alphawallet.app.widget.SignTransactionDialog;
 import com.alphawallet.token.entity.EthereumMessage;
@@ -101,15 +105,17 @@ import com.alphawallet.token.entity.Signable;
 import com.alphawallet.token.tools.Numeric;
 import com.alphawallet.token.tools.ParseMagicLink;
 
+import com.alphawallet.app.contracts.Permissions;
 import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
+import org.web3j.protocol.Web3j;
+import org.web3j.tx.ClientTransactionManager;
+import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SignatureException;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -128,8 +134,11 @@ import static com.alphawallet.app.C.RESET_WALLET;
 import static com.alphawallet.app.entity.CryptoFunctions.sigFromByteArray;
 import static com.alphawallet.app.entity.Operation.SIGN_DATA;
 import static com.alphawallet.app.entity.tokens.Token.TOKEN_BALANCE_PRECISION;
+import static com.alphawallet.app.repository.EthereumNetworkBase.XDAI_ID;
 import static com.alphawallet.app.ui.MyAddressActivity.KEY_ADDRESS;
 import static com.alphawallet.app.widget.AWalletAlertDialog.ERROR;
+
+
 
 public class DappBrowserFragment extends Fragment implements OnSignTransactionListener, OnSignPersonalMessageListener, OnSignTypedMessageListener, OnSignMessageListener,
         URLLoadInterface, ItemClickListener, SignTransactionInterface, OnDappClickListener, OnDappHomeNavClickListener, OnHistoryItemRemovedListener, DappBrowserSwipeInterface, SignAuthenticationCallback
@@ -200,7 +209,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     private GeolocationPermissions.Callback geoCallback = null;
     private String geoOrigin;
     private final Handler handler;
-
+    private NotificationView coinboxMode;
     private String currentWebpageTitle;
     private String currentFragment;
 
@@ -429,6 +438,9 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     {
         refresh = baseView.findViewById(R.id.refresh);
         final MenuItem upc = toolbar.getMenu().findItem(R.id.action_scan_upc);
+
+        final MenuItem coinbox = toolbar.getMenu().findItem(R.id.action_scan_coinbox);
+
         final MenuItem reload = toolbar.getMenu().findItem(R.id.action_reload);
         final MenuItem share = toolbar.getMenu().findItem(R.id.action_share);
         final MenuItem scan = toolbar.getMenu().findItem(R.id.action_scan);
@@ -443,7 +455,22 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         });
 
         if (upc != null) upc.setOnMenuItemClickListener(menuItem -> {
+            UPCSingleton singleton = UPCSingleton.getInstance();
+            singleton.scanButtonPressed = "crypto_scan_button";
             viewModel.startCryptoScan(getActivity());
+            return true;
+        });
+
+        if (coinbox != null) coinbox.setOnMenuItemClickListener(menuItem -> {
+
+            UPCSingleton singleton = UPCSingleton.getInstance();
+            singleton.scanButtonPressed = "coinbox_scan_button";
+            if(singleton.isCoinboxClient) {
+                viewModel.startCoinboxScan(getActivity());
+            }
+            else {
+            }
+
             return true;
         });
 
@@ -1428,9 +1455,10 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         }
     }
 
-    public void handleCryptoQRCode(int resultCode, Intent data, FragmentMessenger messenger)
+
+
+    public void handleCoinboxScan(int resultCode, Intent data, FragmentMessenger messenger)
     {
-        //result
         String qrCode = null;
         try
         {
@@ -1457,6 +1485,33 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     }
 
 
+
+    public void handleCryptoQRCode(int resultCode, Intent data, FragmentMessenger messenger)
+    {
+        String qrCode = null;
+        try
+        {
+            if (data != null)
+            {
+                qrCode = data.getStringExtra(FullScannerFragment.BarcodeObject);
+                if (qrCode == null || checkForMagicLink(qrCode)) return;
+                QRParser parser = QRParser.getInstance(EthereumNetworkBase.extraChains());
+                //if button pressed is crypto, then result.type = OTHER
+                QRResult result = parser.parse(qrCode);
+                //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
+                viewModel.buyUpc(getContext(), result);
+            }
+        }
+        catch (Exception e)
+        {
+            qrCode = null;
+        }
+
+        if (qrCode == null && getActivity() != null)
+        {
+            Toast.makeText(getActivity(), R.string.toast_invalid_code, Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
     public void handleQRCode(int resultCode, Intent data, FragmentMessenger messenger)

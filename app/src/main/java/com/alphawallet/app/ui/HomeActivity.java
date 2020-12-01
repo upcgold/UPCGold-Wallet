@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import android.widget.Toast;
 import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
+import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.entity.ContractLocator;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.ErrorEnvelope;
@@ -65,6 +67,7 @@ import com.alphawallet.app.viewmodel.BaseNavigationActivity;
 import com.alphawallet.app.viewmodel.HomeViewModel;
 import com.alphawallet.app.viewmodel.HomeViewModelFactory;
 import com.alphawallet.app.widget.AWalletAlertDialog;
+import com.alphawallet.app.widget.AWalletBottomNavigationView;
 import com.alphawallet.app.widget.AWalletConfirmationDialog;
 import com.alphawallet.app.widget.DepositView;
 import com.alphawallet.app.widget.SignTransactionDialog;
@@ -114,6 +117,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     private TutoShowcase backupWalletDialog;
     private PinAuthenticationCallbackInterface authInterface;
     private boolean bottomMarginSet = false;
+    private AWalletBottomNavigationView bottomNavigationView;
 
     public static final int RC_DOWNLOAD_EXTERNAL_WRITE_PERM = 222;
     public static final int RC_ASSET_EXTERNAL_WRITE_PERM = 223;
@@ -189,6 +193,9 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 .get(HomeViewModel.class);
         viewModel.identify(this);
 
+        //call this to initialize the singleton
+        viewModel.getWalletName();
+
         setContentView(R.layout.activity_home);
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -196,6 +203,17 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
         initViews();
         toolbar();
+
+        UPCSingleton singleton = UPCSingleton.getInstance();
+
+        if(singleton.isCoinboxClient) {
+            bottomNavigationView = findViewById(R.id.nav);
+            //bottomNavigationView.setBackgroundColor(ContextCompat.getColor(this, R.color.blueberry));
+            ColorDrawable cd = new ColorDrawable(Color.parseColor("#FF5838A3"));
+            bottomNavigationView.setBackground(cd);
+
+        }
+
 
         viewPager = findViewById(R.id.view_pager);
         viewPager.lockPages(true);
@@ -953,13 +971,16 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        String button = "";
-        try {
-             button = data.getStringExtra("button");
-        }
-        catch (Exception e) {
 
-        }
+        //jonger BUTTONBUTTONBUTTON
+        String button = "";
+
+        UPCSingleton singleton = UPCSingleton.getInstance();
+
+
+
+        button = singleton.scanButtonPressed;
+
 
         Operation taskCode = null;
         if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
@@ -968,10 +989,19 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             requestCode = SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS;
         }
         boolean cryptoScan = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
+        boolean coinboxScan = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
+        boolean standardScan = false; //this is temporarily how im handling switching between the dapp browser and scanupcactivity's handleQRCode function
 
 
-        if(button != null && button.equals("crypto")) {
+
+        if(button != null && button.equals("crypto_scan_button")) {
             cryptoScan = true;
+        }
+        else if(button != null && button.equals("coinbox_scan_button")) {
+            coinboxScan = true;
+        }
+        else if(button != null && button.equals("standard_scan_button")) {
+            standardScan = true;
         }
 
 
@@ -980,6 +1010,9 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case DAPP_BARCODE_READER_REQUEST_CODE:
                 if(cryptoScan) {
                     ((DappBrowserFragment)dappBrowserFragment).handleCryptoQRCode(resultCode, data, this);
+                }
+                else if(coinboxScan) {
+                    ((DappBrowserFragment)dappBrowserFragment).handleCoinboxScan(resultCode, data, this);
                 }
                 else {
                     ((DappBrowserFragment)dappBrowserFragment).handleQRCode(resultCode, data, this);

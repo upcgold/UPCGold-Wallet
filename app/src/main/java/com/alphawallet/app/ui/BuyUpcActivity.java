@@ -22,7 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.contracts.UPCGoldBank;
@@ -224,52 +224,19 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         }
     }
 
-    private String buildPayload(String word) {
-        String finalPayload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002";
 
-        String wordLength = Integer.toHexString(word.length());
-        String lengthZeros = "";
-        int numZeros = 65 - wordLength.length();
-
-        for(int i = 0; i < numZeros; i++) {
-            lengthZeros += "0";
-        }
-
-        String formattedWordLength = lengthZeros + wordLength;
-        finalPayload += formattedWordLength;
-
-
-
-        char[] wordToChar = word.toCharArray();
-        StringBuilder builder = new StringBuilder();
-        for (char c : wordToChar) {
-            // Step-2 Use %H to format character to Hex
-            String hexCode=String.format("%H", c);
-            builder.append(hexCode);
-        }
-
-        int bLength = 64 - builder.length();
-        while(bLength > 0) {
-            builder.append('0');
-            bLength--;
-        }
-
-        finalPayload += builder;
-
-
-        return finalPayload;
-    }
 
     private void onNext() {
 
         //String contractAddressStr = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-        String contractAddressStr = "0x6F2BdBB25C38AdaBcDaB2f9F093ED5356B302A04";
+        String contractAddressStr = "0x312c8e98C41EA9Fd56CaE66e05D700984D4a70Dc";
 
 
       //String payload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000117468697369736174657374737472696e67000000000000000000000000000000";
         //String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
 
-        String payload = this.buildPayload(upcRaw.getText().toString());
+        UPCSingleton singleton = UPCSingleton.getInstance( );
+        String payload = singleton.buildPayload(upcRaw.getText().toString());
 
 
         String gasString = "1";

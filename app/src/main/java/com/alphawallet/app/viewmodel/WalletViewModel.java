@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.text.format.DateUtils;
 
 import com.alphawallet.app.C;
+import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.entity.tokens.Token;
@@ -96,6 +97,8 @@ public class WalletViewModel extends BaseViewModel
 
     private void onDefaultWallet(Wallet wallet)
     {
+        UPCSingleton singleton = UPCSingleton.getInstance( );
+        singleton.myAddress = wallet.address;
         tokensService.setCurrentAddress(wallet.address);
         assetDefinitionService.startEventListener();
         defaultWallet.postValue(wallet);

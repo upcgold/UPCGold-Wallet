@@ -12,7 +12,8 @@
         android:id="@+id/nav"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
-        android:layout_gravity="bottom" />
+        android:layout_gravity="bottom"
+        />
 
     <LinearLayout
         android:id="@+id/layout_success_overlay"

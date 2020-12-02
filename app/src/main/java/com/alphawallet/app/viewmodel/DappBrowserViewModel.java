@@ -12,6 +12,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.alphawallet.app.R;
+import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.entity.QRResult;
 import com.alphawallet.app.repository.TokenRepository;
@@ -222,6 +223,8 @@ public class DappBrowserViewModel extends BaseViewModel  {
     public void startCryptoScan(Activity activity) {
         Intent intent = new Intent(activity, ScanUpcActivity.class);
         intent.putExtra("scanner_button_pressed", "crypto_scan_button");
+        UPCSingleton singleton = UPCSingleton.getInstance();
+        singleton.scanButtonPressed = "crypto_scan_button";
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 
@@ -229,6 +232,8 @@ public class DappBrowserViewModel extends BaseViewModel  {
     public void startCoinboxScan(Activity activity) {
         Intent intent = new Intent(activity, ScanCoinboxActivity.class);
         intent.putExtra("scanner_button_pressed", "coinbox_scan_button");
+        UPCSingleton singleton = UPCSingleton.getInstance();
+        singleton.scanButtonPressed = "coinbox_scan_button";
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 
@@ -236,6 +241,8 @@ public class DappBrowserViewModel extends BaseViewModel  {
     public void startScan(Activity activity) {
         Intent intent = new Intent(activity, QRScanningActivity.class);
         intent.putExtra("scanner_button_pressed", "standard_scan_button");
+        UPCSingleton singleton = UPCSingleton.getInstance();
+        singleton.scanButtonPressed = "standard_scan_button";
         activity.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
     }
 

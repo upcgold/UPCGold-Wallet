@@ -249,7 +249,7 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         //String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
 
         UPCSingleton singleton = UPCSingleton.getInstance( );
-        int selectedGame = Integer.parseInt(gameSpinner.getSelectedItem().toString());
+        String selectedGame = gameSpinner.getSelectedItem().toString();
         String payload = singleton.buildPayload(upcRaw.getText().toString(),selectedGame );
 
 

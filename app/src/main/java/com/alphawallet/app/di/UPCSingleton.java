@@ -81,11 +81,13 @@ public class UPCSingleton {
         return isClient;
     }
 
-    public String buildPayload(String word, int gameId) {
+    public String buildPayload(String word, String gameId) {
         String finalPayload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002";
 
         String wordLength = Integer.toHexString(word.length());
         String lengthZeros = "";
+        String lengthZerosGameId = "";
+
         int numZeros = 65 - wordLength.length();
 
         for(int i = 0; i < numZeros; i++) {
@@ -113,6 +115,23 @@ public class UPCSingleton {
 
         finalPayload += builder;
 
+
+
+        char[] wordToCharGameId = gameId.toCharArray();
+        StringBuilder builderGameId = new StringBuilder();
+        for (char c : wordToCharGameId) {
+            // Step-2 Use %H to format character to Hex
+            String hexCode=String.format("%H", c);
+            builderGameId.append(hexCode);
+        }
+
+        numZeros = 65 - gameId.length();
+
+        for(int i = 0; i < numZeros; i++) {
+            lengthZerosGameId += "0";
+        }
+
+        //finalPayload +=
 
         return finalPayload;
     }

@@ -1,6 +1,9 @@
 package com.alphawallet.app.di;
 
+import android.arch.lifecycle.MutableLiveData;
+
 import com.alphawallet.app.contracts.Permissions;
+import com.alphawallet.app.entity.Wallet;
 
 import java.math.BigInteger;
 
@@ -16,6 +19,7 @@ public class UPCSingleton {
      */
     private UPCSingleton() { }
 
+    public MutableLiveData<Wallet> defaultWallet;
     public String myAddress = "";
     public boolean isCoinboxClient = false;
     //public String scanButtonPressed = "crypto_scan_button";
@@ -77,7 +81,7 @@ public class UPCSingleton {
         return isClient;
     }
 
-    public String buildPayload(String word) {
+    public String buildPayload(String word, int gameId) {
         String finalPayload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002";
 
         String wordLength = Integer.toHexString(word.length());

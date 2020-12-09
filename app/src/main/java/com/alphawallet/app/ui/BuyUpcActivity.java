@@ -18,9 +18,11 @@ import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import com.alphawallet.app.di.UPCSingleton;
 import com.alphawallet.app.C;
@@ -109,6 +111,9 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
     private TextView tokenSymbolText;
 
     private TextView upcRaw;
+    private Spinner gameSpinner;
+    private int gameId;
+
     private TextView totalBalance;
     private TextView currentStaker;
     private TextView amountStaked;
@@ -154,6 +159,14 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         String amountStakedString;
 
         upcRaw = findViewById(R.id.upc_raw);
+        gameSpinner  = findViewById(R.id.game_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.game_id, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gameSpinner.setAdapter(adapter);
+
+
+
         currentStaker = findViewById(R.id.current_staker);
         amountStaked = findViewById(R.id.amount_staked);
         toStake = findViewById(R.id.to_stake);
@@ -236,7 +249,8 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
         //String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
 
         UPCSingleton singleton = UPCSingleton.getInstance( );
-        String payload = singleton.buildPayload(upcRaw.getText().toString());
+        int selectedGame = Integer.parseInt(gameSpinner.getSelectedItem().toString());
+        String payload = singleton.buildPayload(upcRaw.getText().toString(),selectedGame );
 
 
         String gasString = "1";

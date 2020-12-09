@@ -150,6 +150,16 @@
     <string name="transfer_now">Transfer Now</string>
     <string name="to">to</string>
 
+    <string-array name="game_id">
+        <item>Savings Account</item>
+        <item>Coinbox</item>
+        <item>Song</item>
+        <item>Live Show</item>
+    </string-array>
+
+
+
+
     <string-array name="filter_date">
         <item>Most Recent</item>
         <item>Oldest</item>
@@ -351,6 +361,7 @@
     <string name="raw_upc">UPC:</string>
     <string name="bidder">Bidder:</string>
     <string name="amount_staked">Current Bid:</string>
+    <string name="game_id">Experience</string>
     <string name="scan_crypto">Crypto Scan</string>
     <string name="scan_standard">Standard Scan</string>
     <string name="requester_url">Requester</string>

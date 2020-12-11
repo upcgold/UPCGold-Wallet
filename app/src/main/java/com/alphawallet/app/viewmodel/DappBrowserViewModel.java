@@ -319,7 +319,7 @@ public class DappBrowserViewModel extends BaseViewModel  {
         ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
 
         //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-        String contractAddress = "0x312c8e98C41EA9Fd56CaE66e05D700984D4a70Dc";
+        String contractAddress = "0xe9E7395886d139D4b370cEabb270cef289b257Dc";
 
 
 

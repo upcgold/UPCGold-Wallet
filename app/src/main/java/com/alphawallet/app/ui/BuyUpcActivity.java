@@ -241,14 +241,15 @@ public class BuyUpcActivity extends BaseActivity implements OnQRCodeScannedListe
 
     private void onNext() {
 
+        UPCSingleton singleton = UPCSingleton.getInstance();
+        //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
+        String contractAddressStr = singleton.bankAddress;
         //String contractAddressStr = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-        String contractAddressStr = "0xe9E7395886d139D4b370cEabb270cef289b257Dc";
 
 
       //String payload = "0x2b8f7a49000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000117468697369736174657374737472696e67000000000000000000000000000000";
         //String payload = "0x2b8f7a490000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a626f6f6e65736661726d00000000000000000000000000000000000000000000";
 
-        UPCSingleton singleton = UPCSingleton.getInstance( );
         String selectedGame = gameSpinner.getSelectedItem().toString();
         String payload = singleton.buildPayload(upcRaw.getText().toString(),selectedGame );
 

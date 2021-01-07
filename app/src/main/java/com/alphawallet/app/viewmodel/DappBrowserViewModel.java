@@ -17,10 +17,13 @@ import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.entity.QRResult;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.service.TokensService;
+import com.alphawallet.app.ui.DappBrowserFragment;
+import com.alphawallet.app.ui.DappBrowserWinnerFragment;
 import com.alphawallet.app.ui.MyAddressActivity;
 import com.alphawallet.app.ui.BuyUpcActivity;
 import com.alphawallet.app.ui.ScanCoinboxActivity;
 import com.alphawallet.app.ui.SendActivity;
+import com.alphawallet.app.ui.SplashActivity;
 import com.alphawallet.app.ui.WalletConnectActivity;
 import com.alphawallet.token.entity.Signable;
 import com.alphawallet.app.C;
@@ -310,16 +313,16 @@ public class DappBrowserViewModel extends BaseViewModel  {
         ctx.startActivity(intent);
     }
 
-    public void buyUpc(Context ctx, QRResult result)
+    public boolean buyUpc(Context ctx, QRResult result)
     {
         String address = defaultWallet.getValue().address;
         Intent intent = new Intent(ctx, BuyUpcActivity.class);
 
         Web3j web3j = TokenRepository.getWeb3jService(XDAI_ID);
         ClientTransactionManager ctm = new ClientTransactionManager(web3j, address);
-
+        UPCSingleton singleton = UPCSingleton.getInstance();
         //String contractAddress = "0xbE0e4C218a78a80b50aeE895a1D99C1D7a842580";
-        String contractAddress = "0xe9E7395886d139D4b370cEabb270cef289b257Dc";
+        String contractAddress = singleton.bankAddress;
 
 
 
@@ -329,8 +332,16 @@ public class DappBrowserViewModel extends BaseViewModel  {
         BigInteger totalBalance = BigInteger.valueOf(777);
         StaticGasProvider gasProvider = new StaticGasProvider(gasPrice,gasLimit);
         UPCGoldBank bank = UPCGoldBank.load(contractAddress, web3j, ctm, gasProvider );
+        return this.tryBuyUpc(ctx,result,bank);
+    }
+
+    private boolean tryBuyUpc(Context ctx, QRResult result, UPCGoldBank bank) {
+
         try {
             Intent scanIntent = new Intent(ctx, BuyUpcActivity.class);
+
+            Intent upcOwnedIntent = new Intent(ctx, DappBrowserWinnerFragment.class);
+
             //CompletableFuture<BigInteger> balance = bank.getBalance().sendAsync();
             //totalBalance = balance.get();
             String addy = result.getAddress();
@@ -353,11 +364,17 @@ public class DappBrowserViewModel extends BaseViewModel  {
             scanIntent.putExtra("is_owned", isOwned);
             scanIntent.putExtra("upc_hash", upcHashString);
 
+            if(Long.parseLong(amountStaked) == 0) {
+                ctx.startActivity(scanIntent);
+            }
+            else {
+                return false;
+            }
 
-            ctx.startActivity(scanIntent);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     public void showMyAddress(Context ctx)

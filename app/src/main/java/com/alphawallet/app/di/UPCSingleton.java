@@ -20,6 +20,7 @@ public class UPCSingleton {
     private UPCSingleton() { }
 
     public MutableLiveData<Wallet> defaultWallet;
+    public String bankAddress = "0xF5e14DD3C82C9a38C8159F79AcBe767e34a240F3";
     public String myAddress = "";
     public boolean isCoinboxClient = false;
     //public String scanButtonPressed = "crypto_scan_button";

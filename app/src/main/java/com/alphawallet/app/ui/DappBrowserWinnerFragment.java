@@ -12,7 +12,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +65,6 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletPage;
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
-import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.ui.widget.OnDappClickListener;
@@ -105,12 +103,8 @@ import com.alphawallet.token.entity.Signable;
 import com.alphawallet.token.tools.Numeric;
 import com.alphawallet.token.tools.ParseMagicLink;
 
-import com.alphawallet.app.contracts.Permissions;
 import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
-import org.web3j.protocol.Web3j;
-import org.web3j.tx.ClientTransactionManager;
-import org.web3j.tx.gas.StaticGasProvider;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -134,16 +128,14 @@ import static com.alphawallet.app.C.RESET_WALLET;
 import static com.alphawallet.app.entity.CryptoFunctions.sigFromByteArray;
 import static com.alphawallet.app.entity.Operation.SIGN_DATA;
 import static com.alphawallet.app.entity.tokens.Token.TOKEN_BALANCE_PRECISION;
-import static com.alphawallet.app.repository.EthereumNetworkBase.XDAI_ID;
 import static com.alphawallet.app.ui.MyAddressActivity.KEY_ADDRESS;
 import static com.alphawallet.app.widget.AWalletAlertDialog.ERROR;
 
 
-
-public class DappBrowserFragment extends Fragment implements OnSignTransactionListener, OnSignPersonalMessageListener, OnSignTypedMessageListener, OnSignMessageListener,
+public class DappBrowserWinnerFragment extends Fragment implements OnSignTransactionListener, OnSignPersonalMessageListener, OnSignTypedMessageListener, OnSignMessageListener,
         URLLoadInterface, ItemClickListener, SignTransactionInterface, OnDappClickListener, OnDappHomeNavClickListener, OnHistoryItemRemovedListener, DappBrowserSwipeInterface, SignAuthenticationCallback
 {
-    private static final String TAG = DappBrowserFragment.class.getSimpleName();
+    private static final String TAG = DappBrowserWinnerFragment.class.getSimpleName();
     private static final String DAPP_BROWSER = "DAPP_BROWSER";
     private static final String MY_DAPPS = "MY_DAPPS";
     private static final String DISCOVER_DAPPS = "DISCOVER_DAPPS";
@@ -227,16 +219,18 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         SIGN_PERSONAL_MESSAGE, SIGN_MESSAGE
     }
 
-    public DappBrowserFragment()
+    public DappBrowserWinnerFragment()
     {
         myDappsFragment = new MyDappsFragment();
         discoverDappsFragment = new DiscoverDappsFragment();
         browserHistoryFragment = new BrowserHistoryFragment();
         handler = new Handler();
+        web3.loadUrl("https://google.com");
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        web3.loadUrl("https://google.com");
         LocaleUtils.setActiveLocale(getContext());
         super.onCreate(savedInstanceState);
     }
@@ -285,6 +279,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
             attachFragment(DAPP_BROWSER);
             loadOnInit = TextUtils.isEmpty(lastUrl) ? EthereumNetworkRepository.defaultDapp() : lastUrl;
         }
+        web3.loadUrl("https://google.com");
 
         return view;
     }
@@ -388,29 +383,6 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         //blank forward / backward arrows
         setBackForwardButtons();
     }
-
-
-    //call from ViewModel
-    public void scannableAlreadyOwned()
-    {
-        homePressed = true;
-        detachFragments();
-        currentFragment = DAPP_BROWSER;
-        if (urlTv != null)
-            urlTv.getText().clear();
-        if (web3 != null)
-        {
-            web3.clearHistory();
-            web3.stopLoading();
-
-            web3.loadUrl("https://google.com");
-            urlTv.setText(EthereumNetworkRepository.defaultDapp());
-        }
-
-        //blank forward / backward arrows
-        setBackForwardButtons();
-    }
-
 
     @Override
     public void onDappHomeNavClick(int position) {
@@ -580,6 +552,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         balance = view.findViewById(R.id.balance);
         symbol = view.findViewById(R.id.symbol);
         web3.setWebLoadCallback(this);
+        web3.loadUrl("https://google.com");
 
         if (viewModel.getActiveFilterCount() == 1 && EthereumNetworkRepository.defaultDapp() != null) currentNetworkClicker.setVisibility(View.GONE);
     }
@@ -1523,12 +1496,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                 //if button pressed is crypto, then result.type = OTHER
                 QRResult result = parser.parse(qrCode);
                 //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
-                boolean didBuy = viewModel.buyUpc(getContext(), result);
-
-                if(didBuy == false) {
-                    String upcUrl = "https://google.com";
-                    loadUrlRemote(upcUrl);
-                }
+                viewModel.buyUpc(getContext(), result);
             }
         }
         catch (Exception e)

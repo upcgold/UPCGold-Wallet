@@ -155,6 +155,13 @@
         <item>Coinbox</item>
         <item>Song</item>
         <item>Live Show</item>
+        <item>Raffle Ticket</item>
+        <item>CryptoBot (Arb Trading)</item>
+        <item>YouTube Video</item>
+        <item>ThankYou</item>
+        <item>Reddit Link</item>
+        <item>Tweet Link</item>
+        <item>Instagram Link</item>
     </string-array>
 
 
@@ -242,7 +249,7 @@
     <string name="dialog_ok">OK</string>
     <string name="wallet_label">Wallet</string>
     <string name="tx_label">Transactions</string>
-    <string name="browser_label">Bank</string>
+    <string name="browser_label">Casino</string>
     <string name="settings_label">Settings</string>
     <string name="activity_label">Activity</string>
     <string name="toolbar_header_importing_tickets">Importing Tokens</string>

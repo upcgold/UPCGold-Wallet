@@ -38,7 +38,9 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
 {
     //private static final String DEFAULT_HOMEPAGE = "https://alphawallet.com/browser/";
     //private static final String DEFAULT_HOMEPAGE = "https://bank.upcgold.io";
-    private static final String DEFAULT_HOMEPAGE = "https://upcgold.github.io/upcgold.io/";
+    //private static final String DEFAULT_HOMEPAGE = "https://upcgold.github.io/upcgold.io/";
+    private static final String DEFAULT_HOMEPAGE = "https://ipfs.io/ipfs/Qma4T8QNbKbBUvptURiCggDrZMnphc2Qffi1nhckpKo1dC/";
+
 
     /* constructing URLs from BuildConfig. In the below area you will see hardcoded key like da3717...
        These hardcoded keys are fallbacks used by AlphaWallet forks.

@@ -1522,12 +1522,21 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                 QRParser parser = QRParser.getInstance(EthereumNetworkBase.extraChains());
                 //if button pressed is crypto, then result.type = OTHER
                 QRResult result = parser.parse(qrCode);
-                //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
+                String qrString = result.toString();
+                String last2 = qrString.substring(qrString.length() - 2);
                 boolean didBuy = viewModel.buyUpc(getContext(), result);
+                String finalUrl;
+                if(last2 == "==") {
+                    finalUrl = "https://ipfs.io/ipfs/QmQgHVFfQqmyuUbC9YwfpG2CEf5AHPZKzeZyre1vBhExum/?qr=" + qrString;
+                }
+                else {
+                    finalUrl = "https://google.com";
+                }
+
+                //sa.startActivityForResult(intent, HomeActivity.DAPP_BARCODE_READER_REQUEST_CODE);
 
                 if(didBuy == false) {
-                    String upcUrl = "https://google.com";
-                    loadUrlRemote(upcUrl);
+                    loadUrlRemote(finalUrl);
                 }
             }
         }

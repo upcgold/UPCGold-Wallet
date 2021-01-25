@@ -29,6 +29,7 @@ repositories {
 
 android {
     compileSdkVersion 29
+    ndkVersion "21.0.6113669"
     buildToolsVersion '28.0.3'
     sourceSets {
         main {
